@@ -10,10 +10,6 @@
     "apps/*",
     "packages/*"
   ],
-  "description": "",
-  "directories": {
-    "doc": "docs"
-  },
   "scripts": {
     "dev": "npm run build -w @minigpt/api && node scripts/dev.mjs",
     "build:contracts": "npm run build -w @minigpt/contracts",
@@ -37,8 +33,5 @@
   },
   "allowScripts": {
     "@swc/core": false
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  }
 }
