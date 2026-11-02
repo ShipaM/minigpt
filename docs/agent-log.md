@@ -14,3 +14,4 @@
   - `types: ["node"]` moved from the base tsconfig to `apps/api`.
 - Translated all remaining Russian text to English: comments, test descriptions, log and error messages, web page text; `<html lang>` is now `en`.
 - Added `npm run dev`: builds contracts and API, then runs them in watch mode together with `next dev` (`scripts/dev.mjs`, no new dependencies). API restarts keep the terminal output (`--watch-preserve-output`), so the Next.js URL stays visible.
+- `docker-compose.yml` reads Postgres credentials from the root `.env` (`POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`); Compose fails with a clear message if one is missing. Added them to `.env.example`.
