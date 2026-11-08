@@ -23,6 +23,14 @@ npm run dev -w @minigpt/web
 
 API: http://localhost:4000/health · Web: http://localhost:3000
 
+### Generating secrets
+
+`JWT_ACCESS_SECRET` must be at least 32 characters. Generate a random one and put it into `.env`:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+```
+
 ## Structure
 
 - `apps/api` — NestJS 12
@@ -39,3 +47,15 @@ npm run test:int -w @minigpt/api        # integration tests (need Postgres)
 ```
 
 Swagger: http://localhost:4000/docs (outside production)
+
+## Authentication
+
+| Endpoint                                                                        | Access         | What it does                                                    |
+| ------------------------------------------------------------------------------- | -------------- | --------------------------------------------------------------- |
+| `POST /auth/register`                                                           | public         | creates a user, returns `{ accessToken, user }`, sets the refre |
+| ↪ sh cookie                                                                     |
+| `POST /auth/login`                                                              | public         | same response for valid credentials                             |
+| `POST /auth/refresh`                                                            | refresh cookie | rotates the refresh token, returns a new access token           |
+| `POST /auth/logout`                                                             | refresh cookie | revokes the refresh token, clears the cookie                    |
+| `GET /auth/me`                                                                  | access token   | the current user                                                |
+| Try it in Swagger (`/docs`): register, copy `accessToken`, press **Authorize**. |

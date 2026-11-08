@@ -55,7 +55,7 @@ Project goal: practice the stack from the job posting (Next.js + FSD, NestJS + C
 - Add a test for every logic change.
 - After finishing work, briefly add an entry to `docs/agent-log.md`.
 
-## Database and migrations (day 2)
+## Database and migrations
 
 - ORM: TypeORM 1.x. The schema changes only through migrations (`synchronize` is off). Read every generated migration: check `down` and defaults.
 - `npm run migration:generate -w @minigpt/api -- src/database/migrations/<Name>` generates a migration from the entity diff; then register the new class in `src/database/migrations/index.ts`.
@@ -65,3 +65,20 @@ Project goal: practice the stack from the job posting (Next.js + FSD, NestJS + C
 - The API never returns database entities: map to types from `packages/contracts`.
 - New app-wide settings (pipes, filters) go to `app.setup.ts`, so both production and tests see them.
 - Swagger is available at `/docs` outside production.
+
+## Authentication
+
+- Every endpoint requires a valid access token by default (global `JwtAuthGuard`). Only endpoints
+  ↪ marked `@Public()` are open: health, register, login, refresh, logout. Never remove the global
+  ↪ guard; mark the exception instead.
+- Access token: JWT (HS256, 15 min) with only `sub`. Send it as `Authorization: Bearer <token>` an
+  ↪ d keep it in memory on the client, not in `localStorage`.
+- Refresh token: random opaque string in an `httpOnly`, `SameSite=Strict`, `Path=/auth` cookie. Th
+  ↪ e database stores only its SHA-256. Every refresh rotates it; reuse of a rotated token revokes
+  ↪ all sessions of the user.
+- Passwords: scrypt via `PasswordService`. Never log, return or store a password or a refresh toke
+  ↪ n. The `password_hash` column is `select: false`; load it explicitly only for login.
+- Every endpoint that takes a resource id must check that the resource belongs to `@CurrentUser()`
+  ↪ (see `GET /users/:id`).
+- Login answers with the same 401 message for an unknown email and a wrong password.
+- Users are created only by `POST /auth/register`.

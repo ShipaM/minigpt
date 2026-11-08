@@ -1,5 +1,6 @@
 import type { DataSourceOptions } from 'typeorm';
 import type { Env } from '../config/env.ts';
+import { RefreshTokenEntity } from '../modules/auth/refresh-token.entity.ts';
 import { UserEntity } from '../modules/users/user.entity.ts';
 import { migrations } from './migrations/index.ts';
 
@@ -11,7 +12,7 @@ export function buildDataSourceOptions(
   return {
     type: 'postgres',
     url: env.DATABASE_URL,
-    entities: [UserEntity],
+    entities: [UserEntity, RefreshTokenEntity],
     migrations,
     synchronize: false,
     uuidExtension: 'pgcrypto',

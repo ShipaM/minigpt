@@ -19,14 +19,15 @@ describe('Migrations (integration)', () => {
 
   it('apply to an empty database from scratch', async () => {
     expect(await tableExists('users')).toBe(true);
+    expect(await tableExists('refresh_tokens')).toBe(true);
   });
 
   it('can be reverted (down) and applied again (up)', async () => {
     await ds.undoLastMigration();
-    expect(await tableExists('users')).toBe(false);
-
-    await ds.runMigrations();
+    expect(await tableExists('refresh_tokens')).toBe(false);
     expect(await tableExists('users')).toBe(true);
+    await ds.runMigrations();
+    expect(await tableExists('refresh_tokens')).toBe(true);
   });
 
   it('schema matches the entities: no new migration needs to be generated', async () => {

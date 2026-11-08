@@ -4,6 +4,7 @@ import { parseEnv } from './config/env.ts';
 import { buildDataSourceOptions } from './database/data-source.options.ts';
 import { HealthController } from './health/health.controller.ts';
 import { UsersModule } from './modules/users/users.module.ts';
+import { AuthModule } from './modules/auth/auth.module.ts';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { UsersModule } from './modules/users/users.module.ts';
     }),
 
     UsersModule,
+    AuthModule,
   ],
   controllers: [HealthController],
 })

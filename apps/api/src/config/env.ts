@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 // The value from .env.example: it is public, so it must not be accepted in production.
-const PLACEHOLDER_JWT_SECRET = 'change-me-change-me-change-me-change-me';
+const PLACEHOLDER_JWT_SECRET = 'MUqVe/g5pu+rVTcmrECROHwF8zFSWiAlJkMgRJIy3jI=';
 
 const EnvSchema = z
   .object({
@@ -13,6 +13,10 @@ const EnvSchema = z
     ),
     DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }),
     JWT_ACCESS_SECRET: z.string().min(32, 'JWT_ACCESS_SECRET must be at least 32 characters long'),
+    // An access token cannot be revoked, so it lives briefly (60 s .. 1 h, default 15 min).
+    JWT_ACCESS_TTL_SECONDS: z.coerce.number().int().min(60).max(3600).default(900),
+    // A refresh token is stored in the database and can be revoked, so it may live long.
+    REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().min(1).max(90).default(30),
   })
   .refine(
     (env) => env.NODE_ENV !== 'production' || env.JWT_ACCESS_SECRET !== PLACEHOLDER_JWT_SECRET,
