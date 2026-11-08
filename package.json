@@ -12,6 +12,7 @@
   ],
   "scripts": {
     "dev": "npm run build -w @minigpt/api && node scripts/dev.mjs",
+    "docs": "node --env-file-if-exists=.env scripts/docs.mjs",
     "build:contracts": "npm run build -w @minigpt/contracts",
     "lint": "eslint .",
     "typecheck": "npm run typecheck --workspaces --if-present",
@@ -32,6 +33,7 @@
     "vitest": "^5.0.5"
   },
   "allowScripts": {
-    "@swc/core": false
+    "@swc/core": false,
+    "@scarf/scarf": false
   }
 }
