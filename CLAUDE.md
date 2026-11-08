@@ -54,3 +54,14 @@ Project goal: practice the stack from the job posting (Next.js + FSD, NestJS + C
 - One meaningful diff per task. Do not touch unrelated files.
 - Add a test for every logic change.
 - After finishing work, briefly add an entry to `docs/agent-log.md`.
+
+## Database and migrations (day 2)
+
+- ORM: TypeORM 1.x. The schema changes only through migrations (`synchronize` is off). Read every generated migration: check `down` and defaults.
+- `npm run migration:generate -w @minigpt/api -- src/database/migrations/<Name>` generates a migration from the entity diff; then register the new class in `src/database/migrations/index.ts`.
+- `npm run migration:run -w @minigpt/api` applies migrations; `npm run migration:revert -w @minigpt/api` reverts the last one.
+- `npm run test:int -w @minigpt/api` runs integration tests (needs Postgres: `npm run db:up`; the `minigpt_test` database is created automatically).
+- Tests that need a database are named `*.int.spec.ts`; fast ones without external services are `*.spec.ts`.
+- The API never returns database entities: map to types from `packages/contracts`.
+- New app-wide settings (pipes, filters) go to `app.setup.ts`, so both production and tests see them.
+- Swagger is available at `/docs` outside production.

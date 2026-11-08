@@ -29,3 +29,13 @@ API: http://localhost:4000/health · Web: http://localhost:3000
 - `apps/web` — Next.js 16 (App Router)
 - `packages/contracts` — shared Zod schemas and types
 - `CLAUDE.md` — rules for the agent
+
+## Database
+
+```bash
+npm run db:up                           # Postgres in Docker
+npm run migration:run -w @minigpt/api   # create tables
+npm run test:int -w @minigpt/api        # integration tests (need Postgres)
+```
+
+Swagger: http://localhost:4000/docs (outside production)
