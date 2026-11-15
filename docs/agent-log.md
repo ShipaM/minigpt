@@ -26,3 +26,25 @@
 - Added tests for `GET /users` (`getAllUsers`): controller spec (list mapped to the contract without `updatedAt`, empty array) and integration spec (returns all created users). The endpoint was missing from Swagger because `dist/` was stale; a rebuild fixed it, no code change needed.
 - `UsersService.getAllUsers` now orders by `createdAt ASC`; the integration test checks the order.
 - Added `npm run docs` (`scripts/docs.mjs`): opens Swagger UI in the browser; if the API is not running, builds and starts it first (Ctrl+C stops it). No new dependencies.
+
+## Authentication
+
+- Added registration, login, refresh with rotation and theft detection, logout, and a global JWT g
+  ↪ uard with `@Public()`.
+- Passwords are hashed with scrypt; refresh tokens are stored hashed. The users module lost its pu
+  ↪ blic `POST /users`; `GET /users/:id` is owner-only.
+- New migration: `users.password_hash` and the `refresh_tokens` table.
+  What I noticed myself: (write here in your own words)
+  Hints: why refresh tokens are rotated and what a reused token means; why login gives one message f
+  ↪ or both errors; why `HttpOnly` and `SameSite=Strict` on the cookie; what the global guard prot
+  ↪ ects against that per-endpoint guards do not.
+
+## Chats and CQRS
+
+- Added chats and messages with CQRS (`@nestjs/cqrs`): four commands, three queries, thin controller.
+- The model is behind the `LlmProvider` port; the mock adapter is bound in `ChatsModule`.
+- Cursor pagination for chats; messages are ordered by a database sequence (`seq`); the owner is part of every database condition.
+- New migration: `chats` and `messages` tables (with a CHECK on `role`).
+  What I noticed myself: (write here in your own words)
+  Hints: what you gain and what you pay for with CQRS in a simple CRUD module; why a foreign chat is a 404 and not a 403; why there is no
+  transaction around the model call; why a cursor is better than page numbers; why timestamps are in milliseconds.

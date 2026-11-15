@@ -26,7 +26,7 @@ describe('parseEnv', () => {
   });
 
   it('rejects the .env.example JWT secret in production', () => {
-    const placeholder = 'change-me-change-me-change-me-change-me';
+    const placeholder = 'MUqVe/g5pu+rVTcmrECROHwF8zFSWiAlJkMgRJIy3jI=';
     expect(() =>
       parseEnv({ ...valid, NODE_ENV: 'production', JWT_ACCESS_SECRET: placeholder }),
     ).toThrow(/JWT_ACCESS_SECRET/);
@@ -57,5 +57,50 @@ describe('parseEnv', () => {
 
   it('treats an empty PORT as unset', () => {
     expect(parseEnv({ ...valid, PORT: '' }).PORT).toBe(4000);
+  });
+
+  it('applies default token lifetimes', () => {
+    const env = parseEnv(valid);
+    expect(env.JWT_ACCESS_TTL_SECONDS).toBe(900);
+    expect(env.REFRESH_TOKEN_TTL_DAYS).toBe(30);
+  });
+
+  it('rejects out-of-range token lifetimes', () => {
+    expect(parseEnv({ ...valid, JWT_ACCESS_TTL_SECONDS: '3600' }).JWT_ACCESS_TTL_SECONDS).toBe(
+      3600,
+    );
+    expect(() => parseEnv({ ...valid, JWT_ACCESS_TTL_SECONDS: '59' })).toThrow(
+      /JWT_ACCESS_TTL_SECONDS/,
+    );
+    expect(() => parseEnv({ ...valid, JWT_ACCESS_TTL_SECONDS: '3601' })).toThrow(
+      /JWT_ACCESS_TTL_SECONDS/,
+    );
+    expect(parseEnv({ ...valid, REFRESH_TOKEN_TTL_DAYS: '90' }).REFRESH_TOKEN_TTL_DAYS).toBe(90);
+    expect(() => parseEnv({ ...valid, REFRESH_TOKEN_TTL_DAYS: '0' })).toThrow(
+      /REFRESH_TOKEN_TTL_DAYS/,
+    );
+    expect(() => parseEnv({ ...valid, REFRESH_TOKEN_TTL_DAYS: '91' })).toThrow(
+      /REFRESH_TOKEN_TTL_DAYS/,
+    );
+  });
+
+  describe('parseEnv: token lifetimes', () => {
+    it('uses 15 minutes and 30 days by default', () => {
+      const env = parseEnv(valid);
+      expect(env.JWT_ACCESS_TTL_SECONDS).toBe(900);
+      expect(env.REFRESH_TOKEN_TTL_DAYS).toBe(30);
+    });
+    it('accepts custom lifetimes and rejects unsafe ones', () => {
+      expect(parseEnv({ ...valid, JWT_ACCESS_TTL_SECONDS: '300' }).JWT_ACCESS_TTL_SECONDS).toBe(
+        300,
+      );
+
+      expect(() => parseEnv({ ...valid, JWT_ACCESS_TTL_SECONDS: '86400' })).toThrow(
+        /JWT_ACCESS_TTL_SECONDS/,
+      );
+      expect(() => parseEnv({ ...valid, REFRESH_TOKEN_TTL_DAYS: '0' })).toThrow(
+        /REFRESH_TOKEN_TTL_DAYS/,
+      );
+    });
   });
 });

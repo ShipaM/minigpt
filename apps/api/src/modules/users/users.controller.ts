@@ -1,50 +1,25 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  ParseUUIDPipe,
-  Post,
-} from '@nestjs/common';
+import { Controller, ForbiddenException, Get, Param, ParseUUIDPipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import type { UserResponse } from '@minigpt/contracts';
-import type { UserEntity } from './user.entity.ts';
 import { UsersService } from './users.service.ts';
-// A value import, not `import type`: ValidationPipe needs the class at runtime (design:paramtypes).
-import { CreateUserDto } from './create-user.dto.ts';
 
-//Only public fields leave the API, not the whole database entity.
-export function toUserResponse(user: UserEntity): UserResponse {
-  return {
-    id: user.id,
-    email: user.email,
-    displayName: user.displayName,
-    createdAt: user.createdAt.toISOString(),
-  };
-}
+// A value import, not `import type`: ValidationPipe needs the class at runtime (design:paramtypes).
+import { toUserResponse } from './user.mapper.ts';
+import { CurrentUser, type AuthenticatedUser } from '../auth/current-user.decorator.ts';
 
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly users: UsersService) {}
 
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  async create(@Body() dto: CreateUserDto): Promise<UserResponse> {
-    return toUserResponse(await this.users.createUser(dto));
-  }
-
-  @Get()
-  @HttpCode(HttpStatus.OK)
-  async getAllUsers(): Promise<UserResponse[]> {
-    return (await this.users.getAllUsers()).map(toUserResponse);
-  }
-
   @Get(':id')
-  @HttpCode(HttpStatus.OK)
-  async getById(@Param('id', new ParseUUIDPipe()) id: string): Promise<UserResponse> {
+  async getById(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @CurrentUser() current: AuthenticatedUser,
+  ): Promise<UserResponse> {
+    // "Who are you" is not enough: you may read only your own profile (protection from IDOR, id guessing).
+    // The same 403 for an existing and a non-existing id: the answer does not reveal who is registered.
+    if (id !== current.id) throw new ForbiddenException('You can only access your own profile');
     return toUserResponse(await this.users.getUserById(id));
   }
 }

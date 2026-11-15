@@ -3,10 +3,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AllExceptionsFilter } from './common/all-exceptions.filter.ts';
 
-/**
- * Shared application setup. Called both from main.ts and from tests, so the tests
- * exercise exactly the same behavior as production.
- */
+//Shared application setup. Called both from main.ts and from tests, so the tests
+//exercise exactly the same behavior as production.
 export function configureApp(app: INestApplication): void {
   app.useGlobalPipes(
     new ValidationPipe({
@@ -19,7 +17,11 @@ export function configureApp(app: INestApplication): void {
 }
 
 export function setupSwagger(app: INestApplication): void {
-  const config = new DocumentBuilder().setTitle('MiniGPT API').setVersion('0.1').build();
+  const config = new DocumentBuilder()
+    .setTitle('MiniGPT API')
+    .setVersion('0.1')
+    .addBearerAuth() // the "Authorize" button in /docs: paste an access token there
+    .build();
 
   SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, config));
 }
