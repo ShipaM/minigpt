@@ -38,3 +38,13 @@
   Hints: why refresh tokens are rotated and what a reused token means; why login gives one message f
   ↪ or both errors; why `HttpOnly` and `SameSite=Strict` on the cookie; what the global guard prot
   ↪ ects against that per-endpoint guards do not.
+
+## Chats and CQRS
+
+- Added chats and messages with CQRS (`@nestjs/cqrs`): four commands, three queries, thin controller.
+- The model is behind the `LlmProvider` port; the mock adapter is bound in `ChatsModule`.
+- Cursor pagination for chats; messages are ordered by a database sequence (`seq`); the owner is part of every database condition.
+- New migration: `chats` and `messages` tables (with a CHECK on `role`).
+  What I noticed myself: (write here in your own words)
+  Hints: what you gain and what you pay for with CQRS in a simple CRUD module; why a foreign chat is a 404 and not a 403; why there is no
+  transaction around the model call; why a cursor is better than page numbers; why timestamps are in milliseconds.

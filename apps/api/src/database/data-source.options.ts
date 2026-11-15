@@ -1,6 +1,8 @@
 import type { DataSourceOptions } from 'typeorm';
 import type { Env } from '../config/env.ts';
 import { RefreshTokenEntity } from '../modules/auth/refresh-token.entity.ts';
+import { ChatEntity } from '../modules/chats/chat.entity.ts';
+import { MessageEntity } from '../modules/chats/message.entity.ts';
 import { UserEntity } from '../modules/users/user.entity.ts';
 import { migrations } from './migrations/index.ts';
 
@@ -12,7 +14,7 @@ export function buildDataSourceOptions(
   return {
     type: 'postgres',
     url: env.DATABASE_URL,
-    entities: [UserEntity, RefreshTokenEntity],
+    entities: [UserEntity, RefreshTokenEntity, ChatEntity, MessageEntity],
     migrations,
     synchronize: false,
     uuidExtension: 'pgcrypto',

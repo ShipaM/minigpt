@@ -33,7 +33,9 @@ export class TokensService {
   async verifyAccessToken(token: string): Promise<string> {
     try {
       const payload = await this.jwt.verifyAsync<{ sub?: unknown }>(token);
+
       if (typeof payload.sub !== 'string') throw new Error('no subject');
+
       return payload.sub;
     } catch {
       throw new UnauthorizedException('Invalid or expired access token');
@@ -56,21 +58,28 @@ export class TokensService {
     const result = await this.refreshTokens.manager.transaction(
       async (manager): Promise<RotationResult> => {
         const repo = manager.getRepository(RefreshTokenEntity);
-        // FOR UPDATE: two parallel requests with the same token are processed one after another.
+        // FOR UPDATE: two parallel requests with the same token are
+        //  processed one after another.
         const found = await repo.findOne({
           where: { tokenHash: sha256(rawToken) },
           lock: { mode: 'pessimistic_write' },
         });
+
         if (!found) return { kind: 'invalid' };
+
         if (found.revokedAt) {
           await repo.update(
             { userId: found.userId, revokedAt: IsNull() },
             { revokedAt: new Date() },
           );
+
           return { kind: 'reused' };
         }
+
         if (found.expiresAt.getTime() <= Date.now()) return { kind: 'invalid' };
+
         await repo.update({ id: found.id }, { revokedAt: new Date() });
+
         return {
           kind: 'ok',
           userId: found.userId,
@@ -78,8 +87,10 @@ export class TokensService {
         };
       },
     );
+
     // Throwing inside the transaction would roll back the "revoke everything" update, so we throw here.
     if (result.kind !== 'ok') throw new UnauthorizedException(INVALID_REFRESH);
+
     return { userId: result.userId, token: result.token };
   }
 

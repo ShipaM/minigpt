@@ -82,3 +82,17 @@ Project goal: practice the stack from the job posting (Next.js + FSD, NestJS + C
   ↪ (see `GET /users/:id`).
 - Login answers with the same 401 message for an unknown email and a wrong password.
 - Users are created only by `POST /auth/register`.
+
+## Chats and CQRS (day 4)
+
+- Controllers of the chats module only build a command or a query and pass it to `CommandBus` / `QueryBus`. All logic lives in handlers:
+  one file per use case, `commands/<name>.command.ts` (command + handler) or `queries/<name>.query.ts`.
+- A command changes state, a query only reads. A query handler must never write.
+- Every handler that touches a chat takes `userId` from the verified token (`@CurrentUser()`), never from the body or the URL, and puts
+  the owner into the database condition (`WHERE id = ? AND user_id = ?`). A foreign chat is the same 404 as a missing one.
+- The model is reached only through the `LlmProvider` port (`modules/chats/llm`). Do not import a concrete provider in handlers. Tests
+  use the mock.
+- Do not hold a database transaction open while calling the model (or any external service).
+- Lists use cursor pagination (`nextCursor`), not page numbers. Sort keys must be unique: add `id` as a tie-breaker.
+- Messages are ordered by `messages.seq`, not by timestamps. Timestamp columns use `precision: 3` (milliseconds).
+- A new handler needs a unit test with fake dependencies; a new endpoint needs integration tests, including "another user's data"

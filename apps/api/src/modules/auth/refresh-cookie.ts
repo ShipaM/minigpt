@@ -4,6 +4,7 @@ export const REFRESH_COOKIE = 'refresh_token';
 
 // The browser sends the cookie only to /auth/*: other endpoints never see the refresh token.
 const COOKIE_PATH = '/auth';
+
 const baseOptions = (secure: boolean) =>
   ({
     httpOnly: true, // not readable from page JavaScript: an XSS bug cannot steal it

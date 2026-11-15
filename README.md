@@ -59,3 +59,17 @@ Swagger: http://localhost:4000/docs (outside production)
 | `POST /auth/logout`                                                             | refresh cookie | revokes the refresh token, clears the cookie                    |
 | `GET /auth/me`                                                                  | access token   | the current user                                                |
 | Try it in Swagger (`/docs`): register, copy `accessToken`, press **Authorize**. |
+
+## Chats
+
+All endpoints require an access token.
+
+| Endpoint                    | What it does                                                             |
+| --------------------------- | ------------------------------------------------------------------------ |
+| `POST /chats`               | create a chat (`title` is optional)                                      |
+| `GET /chats?limit=&cursor=` | your chats, newest activity first; follow `nextCursor` for the next page |
+| `GET /chats/:id`            | one chat                                                                 |
+| `PATCH /chats/:id`          | rename                                                                   |
+| `DELETE /chats/:id`         | delete a chat with its messages                                          |
+| `GET /chats/:id/messages`   | messages, oldest first                                                   |
+| `POST /chats/:id/messages`  | send a message, get the question and the model's answer (a mock for now) |
